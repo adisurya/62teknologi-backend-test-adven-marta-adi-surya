@@ -5,6 +5,7 @@ const { body, validationResult } = require('express-validator');
 const logger = require('../utils/logger');
 const save = require('./save');
 const paginate = require('./paginate');
+const remove = require('./delete');
 
 const router = express.Router();
 
@@ -39,6 +40,33 @@ async function add(req, res) {
   }
 }
 
+async function del(req, res) {
+  const id = req.body.id || '';
+  const { prisma } = req;
+
+  try {
+    const business = await prisma.business.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!business) {
+      return res.status(400).json({ message: 'Invalid ID' });
+    }
+
+    const deleted = await remove(business, prisma);
+
+    return res.status(200).json({ message: 'OK', deleted });
+  } catch (e) {
+    logger.error(`${MODULE_NAME} 9AFDF39B: Exception`, {
+      eMessage: e.message,
+      eCode: e.code,
+    });
+
+    return res.status(500).json({ message: e.message });
+  }
+}
+
 function addMiddlewares() {
   return [
     express.json(),
@@ -57,5 +85,6 @@ function addMiddlewares() {
 }
 router.get('/', index);
 router.post('/', addMiddlewares(), add);
+router.delete('/', [express.json()], del);
 
 module.exports = router;
