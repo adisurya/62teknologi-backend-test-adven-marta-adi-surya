@@ -4,12 +4,14 @@ const { body, validationResult } = require('express-validator');
 
 const logger = require('../utils/logger');
 const save = require('./save');
+const paginate = require('./paginate');
 
 const router = express.Router();
 
-function index(req, res) {
+async function index(req, res) {
   try {
-    return res.json({ message: 'OK' });
+    const businesses = await paginate(req.query, req.prisma);
+    return res.json({ message: 'OK', businesses });
   } catch (e) {
     logger.error(`${MODULE_NAME} 66640B42: Exception`, {
       eMessage: e.message,

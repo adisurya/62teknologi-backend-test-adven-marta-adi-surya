@@ -38,6 +38,12 @@ async function save(data, prisma) {
         categories: {
           create: categories,
         },
+        coordinates: {
+          create: {
+            latitude: data.coordinates.latitude,
+            longitude: data.coordinates.longitude,
+          },
+        },
       },
     };
 

@@ -24,6 +24,8 @@ model Business {
   url             String? @db.VarChar(255)
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
+  coordinate_id   BigInt @unique
+  coordinates     Coordinate @relation(fields: [coordinate_id], references: [id])
   categories      CategoriesOnBusinesses[]
 }
 
@@ -44,4 +46,13 @@ model CategoriesOnBusinesses {
   created_at                DateTime @default(now())
 
   @@id([business_id, category_id])
+}
+
+model Coordinate {
+  id            BigInt @id @default(autoincrement())
+  latitude      Decimal @db.Decimal(10, 8)
+  longitude     Decimal @db.Decimal(11, 8)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  business      Business?
 }
