@@ -11,8 +11,8 @@ datasource db {
 }
 
 model Business {
-  id              String @id @default(uuid())
-  name            String
+  id              String @id @default(cuid())
+  name            String @unique
   alias           String? @db.VarChar(512)
   is_closed       Boolean @default(false)
   phone           String
@@ -24,4 +24,24 @@ model Business {
   url             String? @db.VarChar(255)
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
+  categories      CategoriesOnBusinesses[]
+}
+
+model Category {
+  id              Int @id @default(autoincrement())
+  title           String @unique
+  alias           String? @db.VarChar(512)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  businesses      CategoriesOnBusinesses[]
+}
+
+model CategoriesOnBusinesses {
+  business                  Business @relation(fields: [business_id], references: [id])
+  business_id               String
+  category                  Category @relation(fields: [category_id], references: [id])
+  category_id               Int
+  created_at                DateTime @default(now())
+
+  @@id([business_id, category_id])
 }

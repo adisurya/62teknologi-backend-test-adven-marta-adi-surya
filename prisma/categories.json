@@ -1,0 +1,43 @@
+[
+  {
+    "alias": "newamerican",
+    "title": "New American"
+  },
+  {
+    "alias": "wine_bars",
+    "title": "Wine Bars"
+  },
+  {
+    "alias": "venues",
+    "title": "Venues & Event Spaces"
+  },
+  {
+    "alias": "chinese",
+    "title": "Chinese"
+  },
+  {
+    "alias": "bars",
+    "title": "Bars"
+  },
+  {
+    "alias": "asianfusion",
+    "title": "Asian Fusion"
+  },
+  {
+    "alias": "comfortfood",
+    "title": "Comfort Food"
+  },
+  {
+    "alias": "southern",
+    "title": "Southern"
+  },
+  {
+    "alias": "tradamerican",
+    "title": "American"
+  },
+  {
+    "alias": "french",
+    "title": "French"
+  }
+]
+
