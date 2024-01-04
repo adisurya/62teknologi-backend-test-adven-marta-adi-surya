@@ -4,6 +4,7 @@ const morgan = require('morgan');
 
 const logger = require('./src/utils/logger');
 const setRequestID = require('./src/middlewares/set-request-id');
+const businessRouter = require('./src/business/router');
 
 process.on('uncaughtException', (e) => {
   logger.error('MAIN 57896BAD: UncaughtException', {
@@ -31,6 +32,9 @@ app.use(morgan(':remote-addr :remote-user :method :url HTTP/:http-version :statu
     write: (message) => logger.http(message),
   },
 }));
+
+app.use('/business', businessRouter);
+app.use((req, res) => res.status(404).json({ message: 'Page not found.' }));
 
 app.listen(process.env.PORT, () => {
   logger.verbose(`Application listening on post ${process.env.PORT}`);
