@@ -26,7 +26,10 @@ model Business {
   updated_at      DateTime @updatedAt
   coordinate_id   BigInt @unique
   coordinates     Coordinate @relation(fields: [coordinate_id], references: [id])
-  categories      CategoriesOnBusinesses[]
+  location_id     BigInt @unique
+  location        Location @relation(fields: [location_id], references: [id])
+  categories      Category[]
+  transactions    Transaction[]
 }
 
 model Category {
@@ -35,17 +38,7 @@ model Category {
   alias           String? @db.VarChar(512)
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
-  businesses      CategoriesOnBusinesses[]
-}
-
-model CategoriesOnBusinesses {
-  business                  Business @relation(fields: [business_id], references: [id])
-  business_id               String
-  category                  Category @relation(fields: [category_id], references: [id])
-  category_id               Int
-  created_at                DateTime @default(now())
-
-  @@id([business_id, category_id])
+  businesses      Business[]
 }
 
 model Coordinate {
@@ -55,4 +48,28 @@ model Coordinate {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   business      Business?
+}
+
+model Location {
+  id                BigInt    @id @default(autoincrement())
+  address1          String    @db.VarChar(255)
+  address2          String?   @db.VarChar(255)
+  address3          String?   @db.VarChar(255)
+  city              String
+  zip_code          String    @db.VarChar(5)
+  state             String
+  country           String
+  display_address   Json?
+  distance          Decimal?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  business          Business?
+}
+
+model Transaction {
+  id          BigInt @id @default(autoincrement())
+  name        String @unique
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  businesses    Business[]
 }

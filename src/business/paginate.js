@@ -13,14 +13,32 @@ async function paginate(query, prisma) {
     const businesses = prisma.business.findMany({
       include: {
         categories: {
-          include: {
-            category: true,
+          select: {
+            alias: true,
+            title: true,
           },
         },
         coordinates: {
           select: {
             latitude: true,
             longitude: true,
+          },
+        },
+        location: {
+          select: {
+            address1: true,
+            address2: true,
+            address3: true,
+            city: true,
+            zip_code: true,
+            country: true,
+            state: true,
+            display_address: true,
+          },
+        },
+        transactions: {
+          select: {
+            name: true,
           },
         },
       },

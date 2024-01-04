@@ -1,20 +1,26 @@
 const { PrismaClient } = require('@prisma/client');
 
 const categories = require('./categories.json');
+const transactions = require('./transactions.json');
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // eslint-disable-next-line no-restricted-syntax
-  for (const category of categories) {
-    // eslint-disable-next-line no-await-in-loop
-    const result = await prisma.category.upsert({
-      where: { title: category.title },
-      update: {},
-      create: category,
-    });
-    console.log(result);
-  }
+  const categoryPromises = categories.map(async (category) => prisma.category.upsert({
+    where: { title: category.title },
+    update: {},
+    create: category,
+  }));
+  const categoryResults = await Promise.all(categoryPromises);
+  console.log(categoryResults);
+
+  const transactionsPromises = transactions.map(async (transaction) => prisma.transaction.upsert({
+    where: { name: transaction },
+    update: {},
+    create: { name: transaction },
+  }));
+  const transactionResults = await Promise.all(transactionsPromises);
+  console.log(transactionResults);
 }
 main()
   .then(async () => {
@@ -24,4 +30,4 @@ main()
     console.error(e);
     await prisma.$disconnect();
     process.exit(1);
-  })
+  });
