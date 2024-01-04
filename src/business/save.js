@@ -10,7 +10,24 @@ const logger = require('../utils/logger');
  */
 async function save(data, prisma) {
   try {
-    return prisma.business.create({
+    let categories = [];
+    if (Array.isArray(data.categories)) {
+      categories = data.categories.map((val) => ({
+        created_at: new Date(),
+        category: {
+          connectOrCreate: {
+            where: {
+              title: val.title,
+            },
+            create: {
+              title: val.title,
+              alias: val.title.trim().replace(' ', '_').toLowerCase(),
+            },
+          },
+        },
+      }));
+    }
+    const params = {
       data: {
         name: data.name,
         alias: data.alias || null, // todo
@@ -18,8 +35,13 @@ async function save(data, prisma) {
         phone: data.phone,
         display_phone: data.display_phone || null, // todo
         price: data.price,
+        categories: {
+          create: categories,
+        },
       },
-    });
+    };
+
+    return prisma.business.create(params);
   } catch (e) {
     logger.error(`${MODULE_NAME} 08D08DBC: Exeption`, {
       eMessage: e.message,

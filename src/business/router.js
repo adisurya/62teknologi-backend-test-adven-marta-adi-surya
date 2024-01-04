@@ -1,5 +1,7 @@
 const MODULE_NAME = 'BUSINESS.ROUTER';
 const express = require('express');
+const { body, validationResult } = require('express-validator');
+
 const logger = require('../utils/logger');
 const save = require('./save');
 
@@ -19,6 +21,10 @@ function index(req, res) {
 
 async function add(req, res) {
   try {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(422).json({ message: 'Invalid data', errors: validationErrors.mapped() });
+    }
     const result = await save(req.body, req.prisma);
     return res.status(201).json({ message: 'OK', result });
   } catch (e) {
@@ -31,7 +37,23 @@ async function add(req, res) {
   }
 }
 
+function addMiddlewares() {
+  return [
+    express.json(),
+    body('name')
+      .notEmpty()
+      .withMessage('Name is required.')
+      .isLength({ max: 191 })
+      .withMessage('Name max 191 characters.'),
+    body('phone')
+      .notEmpty()
+      .withMessage('Phone is required.'),
+    body('price')
+      .notEmpty()
+      .withMessage('Price is required.'),
+  ];
+}
 router.get('/', index);
-router.post('/', [express.json()], add);
+router.post('/', addMiddlewares(), add);
 
 module.exports = router;
