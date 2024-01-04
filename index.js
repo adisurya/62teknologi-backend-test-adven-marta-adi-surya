@@ -4,6 +4,8 @@ const morgan = require('morgan');
 
 const logger = require('./src/utils/logger');
 const setRequestID = require('./src/middlewares/set-request-id');
+const setPrismaClient = require('./src/middlewares/set-prisma-client');
+
 const businessRouter = require('./src/business/router');
 
 process.on('uncaughtException', (e) => {
@@ -24,6 +26,7 @@ BigInt.prototype.toJSON = function () {
 const app = express();
 
 app.use(setRequestID);
+app.use(setPrismaClient);
 
 morgan.token('request-id', (req, res) => res.locals.rid);
 
