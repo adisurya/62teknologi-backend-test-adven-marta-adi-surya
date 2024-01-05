@@ -195,6 +195,11 @@ function queryMiddlewares() {
           throw new Error(`'${value}' is not of type 'integer'.`);
         }
       }),
+    query('open_now')
+      .optional()
+      .isBoolean()
+      .withMessage('Open now is not boolean.')
+      .toBoolean(),
 
   ];
 }

@@ -17,5 +17,9 @@ module.exports = (query) => {
   if (query.price) {
     conditions.price = { in: parsePrice(query.price) };
   }
+
+  if (typeof query.open_now !== 'undefined') {
+    conditions.is_closed = !query.open_now;
+  }
   return conditions;
 };
