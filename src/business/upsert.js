@@ -1,4 +1,4 @@
-const MODULE_NAME = 'BUSINESS.SAVE';
+const MODULE_NAME = 'BUSINESS.UPSERT';
 
 const logger = require('../utils/logger');
 const formatDisplayAddress = require('../utils/format-display-address');
@@ -11,6 +11,8 @@ const formatDisplayAddress = require('../utils/format-display-address');
  */
 async function save(data, prisma) {
   try {
+    const dbTrxs = [];
+
     let categories = [];
     if (Array.isArray(data.categories)) {
       categories = data.categories.map((val) => ({
@@ -47,8 +49,18 @@ async function save(data, prisma) {
     };
     location.display_address = formatDisplayAddress(location);
 
-    const params = {
-      data: {
+    if (data.id) {
+      const deleteCategory = prisma.$executeRaw`DELETE FROM _BusinessToCategory WHERE A = ${data.id}`;
+      const deleteTransaction = prisma.$executeRaw`DELETE FROM _BusinessToTransaction WHERE A = ${data.id}`;
+
+      dbTrxs.push(deleteCategory, deleteTransaction);
+    }
+
+    const updateBusiness = prisma.business.upsert({
+      where: {
+        id: data.id,
+      },
+      create: {
         name: data.name,
         alias: data.alias || null, // todo
         is_closed: data.is_closed || false,
@@ -71,15 +83,41 @@ async function save(data, prisma) {
           connectOrCreate: transactions,
         },
       },
-    };
+      update: {
+        name: data.name,
+        alias: data.alias || null, // todo
+        is_closed: data.is_closed || false,
+        phone: data.phone,
+        display_phone: data.display_phone || null, // todo
+        price: data.price,
+        categories: {
+          connectOrCreate: categories,
+        },
+        transactions: {
+          connectOrCreate: transactions,
+        },
+        coordinates: {
+          update: {
+            latitude: data.coordinates.latitude,
+            longitude: data.coordinates.longitude,
+          },
+        },
+        location: {
+          update: location,
+        },
+      },
+    });
+    dbTrxs.push(updateBusiness);
 
-    return prisma.business.create(params);
+    const results = await prisma.$transaction(dbTrxs);
+
+    return results[2]; // return business objects
   } catch (e) {
-    logger.error(`${MODULE_NAME} 08D08DBC: Exeption`, {
+    logger.error(`${MODULE_NAME} 9B92C424: Exeption`, {
       eMessage: e.message,
       eCode: e.code,
     });
-    throw new Error('Error when saving business');
+    throw new Error('Error when updating business');
   }
 }
 
