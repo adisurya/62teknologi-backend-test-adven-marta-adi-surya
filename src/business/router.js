@@ -200,6 +200,8 @@ function queryMiddlewares() {
       .isBoolean()
       .withMessage('Open now is not boolean.')
       .toBoolean(),
+    query('location')
+      .optional(),
 
   ];
 }

@@ -21,5 +21,16 @@ module.exports = (query) => {
   if (typeof query.open_now !== 'undefined') {
     conditions.is_closed = !query.open_now;
   }
+
+  if (query.location) {
+    conditions.location = {
+      OR: [
+        { state: query.location },
+        { city: query.location },
+        { zip_code: query.location },
+        { address1: { contains: query.location } },
+      ],
+    };
+  }
   return conditions;
 };
