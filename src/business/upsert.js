@@ -1,6 +1,7 @@
 const MODULE_NAME = 'BUSINESS.UPSERT';
 
 const haversine = require('haversine-distance');
+
 const logger = require('../utils/logger');
 const buildParamsCategories = require('./build-params-categories');
 const buildParamsTransactions = require('./build-params-transactions');
