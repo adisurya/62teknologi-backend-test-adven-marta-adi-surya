@@ -18,7 +18,14 @@ async function index(req, res) {
     }
 
     const businesses = await paginate(req.query, req.prisma);
-    return res.json({ message: 'OK', businesses });
+    const region = {
+      center: {
+        latitude: req.environments.CENTER_LATITUDE,
+        longitude: req.environments.CENTER_LONGITUDE,
+      },
+    };
+
+    return res.json({ message: 'OK', businesses, region });
   } catch (e) {
     logger.error(`${MODULE_NAME} 66640B42: Exception`, {
       eMessage: e.message,
