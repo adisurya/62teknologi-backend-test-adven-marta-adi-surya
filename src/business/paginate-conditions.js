@@ -32,5 +32,12 @@ module.exports = (query) => {
       ],
     };
   }
+
+  if (query.categories) {
+    conditions.categories = {
+      some: { alias: { in: query.categories.split(',') } },
+    };
+  }
+
   return conditions;
 };

@@ -202,6 +202,8 @@ function queryMiddlewares() {
       .toBoolean(),
     query('location')
       .optional(),
+    query('categories')
+      .optional(),
 
   ];
 }
