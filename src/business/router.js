@@ -5,6 +5,7 @@ const { body, query, validationResult } = require('express-validator');
 const logger = require('../utils/logger');
 const upsert = require('./upsert');
 const paginate = require('./paginate');
+const totalBusiness = require('./total');
 const remove = require('./delete');
 const findByName = require('./find-by-name');
 
@@ -18,6 +19,7 @@ async function index(req, res) {
     }
 
     const businesses = await paginate(req.query, req.prisma);
+    const total = await totalBusiness(req.query, req.prisma);
     const region = {
       center: {
         latitude: req.environments.CENTER_LATITUDE,
@@ -25,7 +27,13 @@ async function index(req, res) {
       },
     };
 
-    return res.json({ message: 'OK', businesses, region });
+    return res.json({
+      message: 'OK',
+      businesses,
+      // eslint-disable-next-line no-underscore-dangle
+      total: total._count,
+      region,
+    });
   } catch (e) {
     logger.error(`${MODULE_NAME} 66640B42: Exception`, {
       eMessage: e.message,

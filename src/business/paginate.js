@@ -3,7 +3,7 @@ const MODULE_NAME = 'BUSINESS.PAGINATE';
 const logger = require('../utils/logger');
 const paginateConditions = require('./paginate-conditions');
 /**
- * save business to database
+ * paginate business in database
  *
  * @param {object} query
  * @param {object} prisma
