@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const logger = require('./src/utils/logger');
 const setRequestID = require('./src/middlewares/set-request-id');
 const setPrismaClient = require('./src/middlewares/set-prisma-client');
+const setEnvironments = require('./src/middlewares/set-request-environment');
 
 const businessRouter = require('./src/business/router');
 
@@ -27,6 +28,7 @@ const app = express();
 
 app.use(setRequestID);
 app.use(setPrismaClient);
+app.use(setEnvironments);
 
 morgan.token('request-id', (req, res) => res.locals.rid);
 

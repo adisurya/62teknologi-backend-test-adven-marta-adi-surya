@@ -29,7 +29,12 @@ async function add(req, res) {
       return res.status(422).json({ message: 'Invalid data', errors: validationErrors.mapped() });
     }
     req.body.id = '';
-    const result = await upsert(req.body, req.prisma);
+    console.log(req.environments);
+    const center = {
+      latitude: req.environments.CENTER_LATITUDE,
+      longitude: req.environments.CENTER_LONGITUDE,
+    };
+    const result = await upsert(req.body, req.prisma, center);
     return res.status(201).json({ message: 'OK', result });
   } catch (e) {
     logger.error(`${MODULE_NAME} 9AFDF39B: Exception`, {

@@ -10,8 +10,11 @@ const buildParamsLocation = require('./build-params-location');
  *
  * @param {object} data
  * @param {object} prisma
+ * @param {object} center
+ * @param {string} center.latitude
+ * @param {string} center.longitude
  */
-async function save(data, prisma) {
+async function save(data, prisma, center) {
   try {
     const dbTrxs = [];
 
@@ -25,7 +28,7 @@ async function save(data, prisma) {
       transactions = buildParamsTransactions(data.transactions);
     }
 
-    const location = buildParamsLocation(data.location);
+    const location = buildParamsLocation(data.location, data.coordinates, center);
     if (data.id) {
       const deleteCategory = prisma.$executeRaw`DELETE FROM _BusinessToCategory WHERE A = ${data.id}`;
       const deleteTransaction = prisma.$executeRaw`DELETE FROM _BusinessToTransaction WHERE A = ${data.id}`;
@@ -44,6 +47,8 @@ async function save(data, prisma) {
         phone: data.phone,
         display_phone: data.display_phone || null, // todo
         price: data.price,
+        image_url: data.image_url || null,
+        url: data.url || null,
         categories: {
           connectOrCreate: categories,
         },
@@ -67,6 +72,8 @@ async function save(data, prisma) {
         phone: data.phone,
         display_phone: data.display_phone || null, // todo
         price: data.price,
+        image_url: data.image_url || null,
+        url: data.url || null,
         categories: {
           connectOrCreate: categories,
         },
