@@ -6,6 +6,7 @@ const logger = require('../utils/logger');
 const upsert = require('./upsert');
 const paginate = require('./paginate');
 const remove = require('./delete');
+const findByName = require('./find-by-name');
 
 const router = express.Router();
 
@@ -29,7 +30,6 @@ async function add(req, res) {
       return res.status(422).json({ message: 'Invalid data', errors: validationErrors.mapped() });
     }
     req.body.id = '';
-    console.log(req.environments);
     const center = {
       latitude: req.environments.CENTER_LATITUDE,
       longitude: req.environments.CENTER_LONGITUDE,
@@ -78,6 +78,11 @@ async function edit(req, res) {
   const { prisma, body: data = {} } = req;
 
   try {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(422).json({ message: 'Invalid data', errors: validationErrors.mapped() });
+    }
+
     const business = await prisma.business.findUnique({
       where: {
         id,
@@ -87,7 +92,12 @@ async function edit(req, res) {
       return res.status(400).json({ message: 'Invalid ID' });
     }
 
-    const updated = await upsert(data, prisma);
+    const center = {
+      latitude: req.environments.CENTER_LATITUDE,
+      longitude: req.environments.CENTER_LONGITUDE,
+    };
+
+    const updated = await upsert(data, prisma, center);
 
     return res.status(200).json({ message: 'OK', updated });
   } catch (e) {
@@ -100,44 +110,57 @@ async function edit(req, res) {
   }
 }
 
-function addMiddlewares() {
+function bodyMiddlewares() {
   return [
     express.json(),
     body('name')
       .notEmpty()
       .withMessage('Name is required.')
       .isLength({ max: 191 })
-      .withMessage('Name max 191 characters.'),
-    body('phone')
-      .notEmpty()
-      .withMessage('Phone is required.'),
-    body('price')
-      .notEmpty()
-      .withMessage('Price is required.'),
-  ];
-}
+      .withMessage('Name max 191 characters.')
+      .custom(async (value, { req }) => {
+        const id = req.body && req.body.id;
+        const business = await findByName(value, id, req.prisma);
 
-function editMiddlewares() {
-  return [
-    express.json(),
-    body('id').notEmpty(),
-    body('name')
-      .notEmpty()
-      .withMessage('Name is required.')
-      .isLength({ max: 191 })
-      .withMessage('Name max 191 characters.'),
+        if (business) {
+          throw new Error('Name already in use');
+        }
+      }),
     body('phone')
       .notEmpty()
       .withMessage('Phone is required.'),
     body('price')
       .notEmpty()
       .withMessage('Price is required.'),
+    body('coordinates.latitude')
+      .notEmpty()
+      .withMessage('coordinates.latitude (latitude) is required.'),
+    body('coordinates.longitude')
+      .notEmpty()
+      .withMessage('coordinates.longitude (longitude) is required.'),
+
+    body('location.address1')
+      .notEmpty()
+      .withMessage('location.address1 (address1) is required.'),
+    body('location.city')
+      .notEmpty()
+      .withMessage('location.city (city) is required.'),
+    body('location.zip_code')
+      .notEmpty()
+      .withMessage('location.zip_code (zip_code) is required.'),
+    body('location.country')
+      .notEmpty()
+      .withMessage('location.country (country) is required.'),
+    body('location.state')
+      .notEmpty()
+      .withMessage('location.state (state) is required.'),
+
   ];
 }
 
 router.get('/', index);
-router.post('/', addMiddlewares(), add);
-router.put('/', editMiddlewares(), edit);
+router.post('/', bodyMiddlewares(), add);
+router.put('/', bodyMiddlewares(), edit);
 router.delete('/', [express.json()], del);
 
 module.exports = router;
