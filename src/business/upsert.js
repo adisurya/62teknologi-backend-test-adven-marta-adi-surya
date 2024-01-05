@@ -26,9 +26,7 @@ async function save(data, prisma) {
     }
 
     const location = buildParamsLocation(data.location);
-    console.log(data.id);
     if (data.id) {
-      console.log('deleting related');
       const deleteCategory = prisma.$executeRaw`DELETE FROM _BusinessToCategory WHERE A = ${data.id}`;
       const deleteTransaction = prisma.$executeRaw`DELETE FROM _BusinessToTransaction WHERE A = ${data.id}`;
 
