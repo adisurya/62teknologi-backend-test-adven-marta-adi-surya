@@ -24,6 +24,7 @@ model Business {
   url             String? @db.VarChar(255)
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
+  distance        Decimal?
   coordinate_id   BigInt @unique
   coordinates     Coordinate @relation(fields: [coordinate_id], references: [id])
   location_id     BigInt @unique
@@ -60,7 +61,6 @@ model Location {
   state             String
   country           String
   display_address   Json?
-  distance          Decimal?
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
   business          Business?

@@ -13,6 +13,7 @@ CREATE TABLE `Business` (
     `url` VARCHAR(255) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
+    `distance` DECIMAL(65, 30) NULL,
     `coordinate_id` BIGINT NOT NULL,
     `location_id` BIGINT NOT NULL,
 
@@ -56,7 +57,6 @@ CREATE TABLE `Location` (
     `state` VARCHAR(191) NOT NULL,
     `country` VARCHAR(191) NOT NULL,
     `display_address` JSON NULL,
-    `distance` DECIMAL(65, 30) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 

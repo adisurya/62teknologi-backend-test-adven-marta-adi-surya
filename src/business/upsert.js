@@ -1,12 +1,13 @@
 const MODULE_NAME = 'BUSINESS.UPSERT';
 
+const haversine = require('haversine-distance');
 const logger = require('../utils/logger');
 const buildParamsCategories = require('./build-params-categories');
 const buildParamsTransactions = require('./build-params-transactions');
 const buildParamsLocation = require('./build-params-location');
 
 /**
- * save business to database
+ * upsert business to database
  *
  * @param {object} data
  * @param {object} prisma
@@ -14,9 +15,10 @@ const buildParamsLocation = require('./build-params-location');
  * @param {string} center.latitude
  * @param {string} center.longitude
  */
-async function save(data, prisma, center) {
+async function upsert(data, prisma, center) {
   try {
     const dbTrxs = [];
+    const { coordinates } = data;
 
     let categories = [];
     if (Array.isArray(data.categories)) {
@@ -28,7 +30,13 @@ async function save(data, prisma, center) {
       transactions = buildParamsTransactions(data.transactions);
     }
 
-    const location = buildParamsLocation(data.location, data.coordinates, center);
+    const location = buildParamsLocation(data.location);
+
+    let distance = null;
+    if (coordinates && coordinates.latitude && coordinates.longitude) {
+      distance = haversine(center, coordinates);
+    }
+
     if (data.id) {
       const deleteCategory = prisma.$executeRaw`DELETE FROM _BusinessToCategory WHERE A = ${data.id}`;
       const deleteTransaction = prisma.$executeRaw`DELETE FROM _BusinessToTransaction WHERE A = ${data.id}`;
@@ -49,13 +57,14 @@ async function save(data, prisma, center) {
         price: data.price,
         image_url: data.image_url || null,
         url: data.url || null,
+        distance,
         categories: {
           connectOrCreate: categories,
         },
         coordinates: {
           create: {
-            latitude: data.coordinates.latitude,
-            longitude: data.coordinates.longitude,
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude,
           },
         },
         location: {
@@ -74,6 +83,7 @@ async function save(data, prisma, center) {
         price: data.price,
         image_url: data.image_url || null,
         url: data.url || null,
+        distance,
         categories: {
           connectOrCreate: categories,
         },
@@ -82,8 +92,8 @@ async function save(data, prisma, center) {
         },
         coordinates: {
           update: {
-            latitude: data.coordinates.latitude,
-            longitude: data.coordinates.longitude,
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude,
           },
         },
         location: {
@@ -105,4 +115,4 @@ async function save(data, prisma, center) {
   }
 }
 
-module.exports = save;
+module.exports = upsert;
