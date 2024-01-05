@@ -11,7 +11,7 @@ const paginateConditions = require('./paginate-conditions');
 async function paginate(query, prisma) {
   try {
     const conditions = paginateConditions(query);
-    console.log(conditions);
+
     const businesses = prisma.business.findMany({
       skip: query.offset || 0,
       take: query.limit || 20,
