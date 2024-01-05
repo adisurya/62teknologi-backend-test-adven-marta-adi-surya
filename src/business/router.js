@@ -179,6 +179,13 @@ function queryMiddlewares() {
       .isInt({ min: 1 })
       .withMessage('Limit is lower than minimum  of 1.')
       .toInt(),
+    query('offset')
+      .optional()
+      .isInt({ max: 1000 })
+      .withMessage('Offset is greater than maximum  of 1000.')
+      .isInt({ min: 0 })
+      .withMessage('Offset is lower than minimum  of 0.')
+      .toInt(),
   ];
 }
 
