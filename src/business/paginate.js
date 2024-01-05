@@ -1,7 +1,7 @@
 const MODULE_NAME = 'BUSINESS.PAGINATE';
 
 const logger = require('../utils/logger');
-
+const paginateConditions = require('./paginate-conditions');
 /**
  * save business to database
  *
@@ -10,9 +10,12 @@ const logger = require('../utils/logger');
  */
 async function paginate(query, prisma) {
   try {
+    const conditions = paginateConditions(query);
+    console.log(conditions);
     const businesses = prisma.business.findMany({
       skip: query.offset || 0,
       take: query.limit || 20,
+      where: conditions,
       include: {
         categories: {
           select: {

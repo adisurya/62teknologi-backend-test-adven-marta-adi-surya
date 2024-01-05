@@ -179,6 +179,7 @@ function queryMiddlewares() {
       .isInt({ min: 1 })
       .withMessage('Limit is lower than minimum  of 1.')
       .toInt(),
+
     query('offset')
       .optional()
       .isInt({ max: 1000 })
@@ -186,6 +187,15 @@ function queryMiddlewares() {
       .isInt({ min: 0 })
       .withMessage('Offset is lower than minimum  of 0.')
       .toInt(),
+
+    query('price')
+      .optional()
+      .custom(async (value) => {
+        if (!value.match(/^\d+(,\d+)*$/)) {
+          throw new Error(`'${value}' is not of type 'integer'.`);
+        }
+      }),
+
   ];
 }
 
