@@ -1,7 +1,9 @@
 const MODULE_NAME = 'BUSINESS.UPSERT';
 
 const logger = require('../utils/logger');
-const formatDisplayAddress = require('../utils/format-display-address');
+const buildParamsCategories = require('./build-params-categories');
+const buildParamsTransactions = require('./build-params-transactions');
+const buildParamsLocation = require('./build-params-location');
 
 /**
  * save business to database
@@ -15,41 +17,18 @@ async function save(data, prisma) {
 
     let categories = [];
     if (Array.isArray(data.categories)) {
-      categories = data.categories.map((val) => ({
-        where: {
-          title: val.title,
-        },
-        create: {
-          title: val.title,
-          alias: val.title.trim().replace(' ', '_').toLowerCase(),
-        },
-      }));
+      categories = buildParamsCategories(data.categories);
     }
 
     let transactions = [];
     if (Array.isArray(data.transactions)) {
-      transactions = data.transactions.map((val) => ({
-        where: {
-          name: val.name,
-        },
-        create: {
-          name: val.name,
-        },
-      }));
+      transactions = buildParamsTransactions(data.transactions);
     }
 
-    const location = {
-      address1: data.location.address1,
-      address2: data.location.address2 || null,
-      address3: data.location.address3 || null,
-      city: data.location.city,
-      zip_code: data.location.zip_code,
-      state: data.location.state,
-      country: data.location.country,
-    };
-    location.display_address = formatDisplayAddress(location);
-
+    const location = buildParamsLocation(data.location);
+    console.log(data.id);
     if (data.id) {
+      console.log('deleting related');
       const deleteCategory = prisma.$executeRaw`DELETE FROM _BusinessToCategory WHERE A = ${data.id}`;
       const deleteTransaction = prisma.$executeRaw`DELETE FROM _BusinessToTransaction WHERE A = ${data.id}`;
 

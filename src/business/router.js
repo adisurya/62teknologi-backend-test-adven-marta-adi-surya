@@ -3,7 +3,6 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 
 const logger = require('../utils/logger');
-const save = require('./save');
 const upsert = require('./upsert');
 const paginate = require('./paginate');
 const remove = require('./delete');
@@ -29,7 +28,8 @@ async function add(req, res) {
     if (!validationErrors.isEmpty()) {
       return res.status(422).json({ message: 'Invalid data', errors: validationErrors.mapped() });
     }
-    const result = await save(req.body, req.prisma);
+    req.body.id = '';
+    const result = await upsert(req.body, req.prisma);
     return res.status(201).json({ message: 'OK', result });
   } catch (e) {
     logger.error(`${MODULE_NAME} 9AFDF39B: Exception`, {
