@@ -1,6 +1,6 @@
 const MODULE_NAME = 'BUSINESS.ROUTER';
 const express = require('express');
-const { body, validationResult } = require('express-validator');
+const { body, query, validationResult } = require('express-validator');
 
 const logger = require('../utils/logger');
 const upsert = require('./upsert');
@@ -12,6 +12,11 @@ const router = express.Router();
 
 async function index(req, res) {
   try {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(422).json({ message: 'Invalid parameters', errors: validationErrors.mapped() });
+    }
+
     const businesses = await paginate(req.query, req.prisma);
     return res.json({ message: 'OK', businesses });
   } catch (e) {
@@ -158,7 +163,20 @@ function bodyMiddlewares() {
   ];
 }
 
-router.get('/', index);
+function queryMiddlewares() {
+  return [
+    query('limit')
+      .optional()
+      .isInt({ max: 50 })
+      .withMessage('Limit is greater than maximum  of 50.')
+      .isInt({ min: 1 })
+      .withMessage('Limit is lower than minimum  of 1.')
+      .toInt(),
+  ];
+}
+
+router.get('/', queryMiddlewares(), index);
+router.get('/search', queryMiddlewares(), index);
 router.post('/', bodyMiddlewares(), add);
 router.put('/', bodyMiddlewares(), edit);
 router.delete('/', [express.json()], del);

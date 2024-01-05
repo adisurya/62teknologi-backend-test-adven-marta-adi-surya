@@ -11,6 +11,7 @@ const logger = require('../utils/logger');
 async function paginate(query, prisma) {
   try {
     const businesses = prisma.business.findMany({
+      take: query.limit || 20,
       include: {
         categories: {
           select: {
