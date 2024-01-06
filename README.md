@@ -14,9 +14,12 @@ Untuk install aplikasi ini pada server atau komputer harus sudah terinstall node
 4. jalankan migrasi database
    ```bash
    npx prisma migrate deploy
+   ```
+5. jalankan seed database
+   ```bash
    npx prisma db seed
    ```
-5. jalankan aplikasi
+6. jalankan aplikasi
    ```bash
    node index.js
    ```
